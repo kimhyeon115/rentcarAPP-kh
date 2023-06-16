@@ -113,10 +113,5 @@ public class rentCarDetail extends JDialog {
 		tfOther.setLineWrap(true);
 		scrollPane.setViewportView(tfOther);
 	}
-	
-	public rentCarDetail(int listtype, String keyword) {
-		this();
-		Vector<String> vector = rentMethod.information(listtype,keyword);
-		tfCarNum.setText(vector.get(1));
-	}
+
 }
