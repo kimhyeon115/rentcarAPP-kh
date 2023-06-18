@@ -1,13 +1,18 @@
+package rentAdmin;
 import java.awt.EventQueue;
 
 import javax.swing.JDialog;
 import java.awt.BorderLayout;
 import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
+
+import oracle.net.aso.r;
+
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -32,6 +37,7 @@ import javax.swing.JPopupMenu;
 import java.awt.Component;
 import javax.swing.JTabbedPane;
 import java.awt.Font;
+import javax.swing.SwingConstants;
 
 public class rentMain extends JDialog {
 
@@ -58,6 +64,8 @@ public class rentMain extends JDialog {
 	private JTable tableCar;
 	private JTextField tfSearchReservation;
 	private JTable tableReservation;
+	private JPopupMenu popupMenu;
+	protected static String SearchCindex;
 
 	/**
 	 * Create the dialog.
@@ -70,6 +78,13 @@ public class rentMain extends JDialog {
 		setJMenuBar(menuBar);
 		
 		JButton btnNewButton = new JButton("\uC815\uBCF4");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String message = "<html>&nbsp;&nbsp;&nbsp;&nbsp;인천직업능력교육원<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+				message = message + "&nbsp;&nbsp;&nbsp;&nbsp;제 작 : 김 현<br>candle_kh@naver.com</html>";
+				JOptionPane.showMessageDialog(null, message);
+			}
+		});
 		menuBar.add(btnNewButton);
 		
 		JButton btnNewButton_1 = new JButton("\uB85C\uADF8\uC544\uC6C3");
@@ -78,11 +93,13 @@ public class rentMain extends JDialog {
 		JButton btnNewButton_2 = new JButton("\uC885\uB8CC");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				dispose();
 			}
 		});
 		menuBar.add(btnNewButton_2);
 		
 		JLabel lblNewLabel = new JLabel("\uB80C\uD2B8\uCE74 \uAD00\uB9AC \uC2DC\uC2A4\uD15C");
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		menuBar.add(lblNewLabel);
 		getContentPane().setLayout(null);
 		
@@ -90,25 +107,27 @@ public class rentMain extends JDialog {
 		tabbedPane.setBounds(0, 0, 834, 486);
 		getContentPane().add(tabbedPane);
 		
-		JPanel panel = new JPanel();
-		tabbedPane.addTab("회원검색", null, panel, null);
-		panel.setLayout(null);
+		JPanel panelMember = new JPanel();
+		tabbedPane.addTab("회원검색", null, panelMember, null);
+		panelMember.setLayout(null);
 		
 		JLabel lblNewLabel_1 = new JLabel("\uC870\uD68C \uB300\uC0C1 :");
 		lblNewLabel_1.setBounds(188, 20, 71, 22);
-		panel.add(lblNewLabel_1);
+		panelMember.add(lblNewLabel_1);
 		
 		JComboBox cbSearchMemberType = new JComboBox();
 		cbSearchMemberType.setModel(new DefaultComboBoxModel(new String[] {"\uC804 \uCCB4", "\uC774 \uB984", "\uC544\uC774\uB514"}));
 		cbSearchMemberType.setBounds(260, 20, 71, 23);
-		panel.add(cbSearchMemberType);
+		panelMember.add(cbSearchMemberType);
 		
 		tfSearchMember = new JTextField();
 		tfSearchMember.setBounds(358, 20, 129, 22);
-		panel.add(tfSearchMember);
+		panelMember.add(tfSearchMember);
 		tfSearchMember.setColumns(10);
 		
-		JButton btnSearchMember = new JButton("\uAC80 \uC0C9");
+		JButton btnSearchMember = new JButton("\uAC80 \uC0C9");		
+		btnSearchMember.setBounds(510, 20, 97, 23);
+		panelMember.add(btnSearchMember);
 		btnSearchMember.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int keytype = cbSearchMemberType.getSelectedIndex();
@@ -116,44 +135,55 @@ public class rentMain extends JDialog {
 				MemberList(keytype, keyword);				
 			}
 		});
-		btnSearchMember.setBounds(510, 20, 97, 23);
-		panel.add(btnSearchMember);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 70, 829, 377);
-		panel.add(scrollPane);
-		
-		tableMember = new JTable();
+		JScrollPane scrollPaneM = new JScrollPane();
+		scrollPaneM.setBounds(0, 70, 829, 377);
+		panelMember.add(scrollPaneM);
+				
+		tableMember = new JTable();		
+		scrollPaneM.setViewportView(tableMember);
 		tableMember.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
+		    @Override
+		    public void mouseEntered(MouseEvent e) {		    	
+		    	int keytype = cbSearchMemberType.getSelectedIndex();
+				String keyword = tfSearchMember.getText();
+				MemberList(keytype, keyword);
+		    }
 		});
-		scrollPane.setViewportView(tableMember);
 		
 		JLabel lblNewLabel_2 = new JLabel("\uD68C\uC6D0\uBAA9\uB85D");
 		lblNewLabel_2.setFont(new Font("굴림", Font.BOLD, 20));
 		lblNewLabel_2.setBounds(12, 5, 97, 55);
-		panel.add(lblNewLabel_2);
+		panelMember.add(lblNewLabel_2);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setLayout(null);
-		tabbedPane.addTab("차량정보", null, panel_1, null);
+		JButton btnNewButton_4 = new JButton("\uD68C\uC6D0\uB4F1\uB85D");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentMember rentMember = new rentMember();
+				rentMember.setModal(true);
+				rentMember.setVisible(true);
+			}
+		});
+		btnNewButton_4.setBounds(619, 20, 95, 23);
+		panelMember.add(btnNewButton_4);
+		
+		JPanel panelCar = new JPanel();
+		panelCar.setLayout(null);
+		tabbedPane.addTab("차량정보", null, panelCar, null);
 		
 		JLabel lblNewLabel_1_1 = new JLabel("\uC870\uD68C \uB300\uC0C1 :");
 		lblNewLabel_1_1.setBounds(188, 20, 71, 22);
-		panel_1.add(lblNewLabel_1_1);
+		panelCar.add(lblNewLabel_1_1);
 		
 		JComboBox cbSearchCarType = new JComboBox();
 		cbSearchCarType.setModel(new DefaultComboBoxModel(new String[] {"\uC804 \uCCB4", "\uBC88 \uD638", "\uBE0C\uB79C\uB4DC", "\uCC28 \uC885", "\uBA85 \uCE6D"}));
 		cbSearchCarType.setBounds(260, 20, 71, 23);
-		panel_1.add(cbSearchCarType);
+		panelCar.add(cbSearchCarType);
 		
 		tfSearchCar = new JTextField();
 		tfSearchCar.setColumns(10);
 		tfSearchCar.setBounds(358, 20, 129, 22);
-		panel_1.add(tfSearchCar);
+		panelCar.add(tfSearchCar);
 		
 		JButton btnSearchCar = new JButton("\uAC80 \uC0C9");
 		btnSearchCar.addActionListener(new ActionListener() {
@@ -164,37 +194,45 @@ public class rentMain extends JDialog {
 			}
 		});
 		btnSearchCar.setBounds(510, 20, 97, 23);
-		panel_1.add(btnSearchCar);
+		panelCar.add(btnSearchCar);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(0, 70, 829, 377);
-		panel_1.add(scrollPane_1);
+		JScrollPane scrollPaneC = new JScrollPane();
+		scrollPaneC.setBounds(0, 70, 829, 377);
+		panelCar.add(scrollPaneC);
 		
 		tableCar = new JTable();
-		scrollPane_1.setViewportView(tableCar);
+		scrollPaneC.setViewportView(tableCar);
+		tableCar.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseEntered(MouseEvent e) {
+		    	int keytype = cbSearchCarType.getSelectedIndex();
+				String keyword = tfSearchCar.getText();
+				CarList(keytype, keyword);
+		    }
+		});
 		
 		JLabel lblNewLabel_2_1 = new JLabel("\uCC28\uB7C9\uBAA9\uB85D");
 		lblNewLabel_2_1.setFont(new Font("굴림", Font.BOLD, 20));
 		lblNewLabel_2_1.setBounds(12, 5, 97, 55);
-		panel_1.add(lblNewLabel_2_1);
+		panelCar.add(lblNewLabel_2_1);
 		
-		JPanel panel_2 = new JPanel();
-		panel_2.setLayout(null);
-		tabbedPane.addTab("예약정보", null, panel_2, null);
+		JPanel panelReservation = new JPanel();
+		panelReservation.setLayout(null);
+		tabbedPane.addTab("예약정보", null, panelReservation, null);
 		
 		JLabel lblNewLabel_1_2 = new JLabel("\uC870\uD68C \uB300\uC0C1 :");
 		lblNewLabel_1_2.setBounds(188, 20, 71, 22);
-		panel_2.add(lblNewLabel_1_2);
+		panelReservation.add(lblNewLabel_1_2);
 		
 		JComboBox cbSearchReservationType = new JComboBox();
 		cbSearchReservationType.setModel(new DefaultComboBoxModel(new String[] {"\uC804 \uCCB4", "\uC544\uC774\uB514", "\uC608\uC57D\uBC88\uD638", "\uCC28\uB7C9\uBC88\uD638"}));
 		cbSearchReservationType.setBounds(260, 20, 71, 23);
-		panel_2.add(cbSearchReservationType);
+		panelReservation.add(cbSearchReservationType);
 		
 		tfSearchReservation = new JTextField();
 		tfSearchReservation.setColumns(10);
 		tfSearchReservation.setBounds(358, 20, 129, 22);
-		panel_2.add(tfSearchReservation);
+		panelReservation.add(tfSearchReservation);
 		
 		JButton btnSearchReservation = new JButton("\uAC80 \uC0C9");
 		btnSearchReservation.addActionListener(new ActionListener() {
@@ -205,21 +243,96 @@ public class rentMain extends JDialog {
 			}
 		});
 		btnSearchReservation.setBounds(510, 20, 97, 23);
-		panel_2.add(btnSearchReservation);
+		panelReservation.add(btnSearchReservation);
 		
-		JScrollPane scrollPane_2 = new JScrollPane();
-		scrollPane_2.setBounds(0, 70, 829, 377);
-		panel_2.add(scrollPane_2);
+		JScrollPane scrollPaneR = new JScrollPane();
+		scrollPaneR.setBounds(0, 70, 829, 377);
+		panelReservation.add(scrollPaneR);
 		
 		tableReservation = new JTable();
-		scrollPane_2.setViewportView(tableReservation);
+		scrollPaneR.setViewportView(tableReservation);
 		
 		JLabel lblNewLabel_2_2 = new JLabel("\uC608\uC57D\uBAA9\uB85D");
 		lblNewLabel_2_2.setFont(new Font("굴림", Font.BOLD, 20));
 		lblNewLabel_2_2.setBounds(12, 5, 97, 55);
-		panel_2.add(lblNewLabel_2_2);
+		panelReservation.add(lblNewLabel_2_2);
+		
+		popupMenu = new JPopupMenu();
+		addPopup(tableCar, popupMenu);
+		
+		JMenuItem btnCarDetail = new JMenuItem("상세정보");
+		btnCarDetail.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentCarDetail carDetail = new rentCarDetail(SearchCindex);
+				carDetail.setModal(true);
+				carDetail.setVisible(true);
+			}
+		});
+		popupMenu.add(btnCarDetail);
+		
+		popupMenu = new JPopupMenu();
+		addPopup(tableMember, popupMenu);
+		
+		JMenuItem btnMemberDelete;
+		btnMemberDelete = new JMenuItem("\uCD94\uBC29");
+		btnMemberDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				MemberDelete(SearchCindex);
+			}
+		});
+		popupMenu.add(btnMemberDelete);
+		
+		popupMenu = new JPopupMenu();
+		addPopup(tableReservation, popupMenu);
+		
+		JMenuItem btnReservationDetail;
+		btnReservationDetail = new JMenuItem("\uC138\uBD80\uC815\uBCF4");
+		btnReservationDetail.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				renReservationDetail renReservationDetail = new renReservationDetail(SearchCindex);
+				renReservationDetail.setModal(true);
+				renReservationDetail.setVisible(true);
+			}
+		});
+		popupMenu.add(btnReservationDetail);
+		
+		JButton btnNewButton_3 = new JButton("\uCC28\uB7C9\uB4F1\uB85D");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentCarDetail rentCarDetail = new  rentCarDetail(0);
+				rentCarDetail.setModal(true);
+				rentCarDetail.setVisible(true);
+			}
+		});
+		btnNewButton_3.setBounds(619, 20, 95, 23);
+		panelCar.add(btnNewButton_3);
 	}
 	
+	protected void MemberDelete(String searchRid) {
+		
+		int result = JOptionPane.showConfirmDialog(null, "해당 회원을 추방할까요?", "회원정보", JOptionPane.YES_NO_OPTION);
+		if (result == JOptionPane.YES_OPTION) {
+			String sql = "";		
+			try {
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+		        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+					
+				sql = "DELETE FROM rmember WHERE rid = '" + searchRid + "'";
+				PreparedStatement pstmt = con.prepareStatement(sql);
+
+				int deleteok = pstmt.executeUpdate();
+				if(deleteok == 1) {
+					JOptionPane.showMessageDialog(null, "회원정보가 삭제성공");
+				} else {
+					JOptionPane.showMessageDialog(null, "차량정보가 삭제실패");
+				}						
+			} catch (ClassNotFoundException | SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	// 예약정보 검색
 	protected void ReservationList(int keytype, String keyword) {
 
 		String sql = "";
@@ -264,10 +377,10 @@ public class rentMain extends JDialog {
 				}				
 		} catch (ClassNotFoundException | SQLException e1) {
 			e1.printStackTrace();
-		}
-		
+		}		
 	}
 
+	// 차량정보 검색
 	protected void CarList(int keytype, String keyword) {
 
 		String sql = "";
@@ -314,6 +427,7 @@ public class rentMain extends JDialog {
 		}		
 	}
 	
+	// 회원정보 검색
 	protected void MemberList(int keytype, String keyword) {
 
 		String sql = "";
@@ -344,7 +458,13 @@ public class rentMain extends JDialog {
 				while(rs.next()) {
 					Vector<String> vector = new Vector<String>();
 					for(int i=1; i<=5; i++) {
-						vector.add(rs.getString(i));
+						if(i == 3) {
+							vector.add(rs.getString(i).substring(0,3) + "-" + rs.getString(i).substring(3,7) + "-" + rs.getString(i).substring(7,11));
+						} else if(i == 5) {
+							vector.add(rs.getString(i).substring(0,10));
+						} else {
+							vector.add(rs.getString(i));
+						}
 					}
 					dtm.addRow(vector);
 				}				
@@ -362,6 +482,15 @@ public class rentMain extends JDialog {
 			}
 			public void mouseReleased(MouseEvent e) {
 				if (e.isPopupTrigger()) {
+					JTable source = (JTable)e.getSource();
+					int row = source.rowAtPoint(e.getPoint());
+					int column = source.columnAtPoint(e.getPoint());
+					
+					// 행이 선택되지 않았다면 그 행을 선택한다.
+					if(!source.isRowSelected(row))  
+						source.changeSelection(row, column, false, false);					
+					SearchCindex = source.getValueAt(row, 0).toString();
+
 					showMenu(e);
 				}
 			}
