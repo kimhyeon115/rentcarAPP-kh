@@ -31,13 +31,23 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 import java.awt.Component;
 import javax.swing.JTabbedPane;
 import java.awt.Font;
+import java.awt.Image;
+
 import javax.swing.SwingConstants;
+import javax.swing.JPasswordField;
+import javax.swing.ImageIcon;
+import java.awt.Dimension;
+import java.awt.Color;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 
 public class rentMain extends JDialog {
 
@@ -66,6 +76,25 @@ public class rentMain extends JDialog {
 	private JTable tableReservation;
 	private JPopupMenu popupMenu;
 	protected static String SearchCindex;
+	private JTextField tfUserId;
+	private JPasswordField tfUserPw;
+	private boolean session = false;
+	private JPanel panelLogin;
+	private String UserName;
+	private JLabel lblUserLoginName;
+	private JTabbedPane tabbedPane;
+	private JButton btnAdminLogin;
+	private JPanel panelCar;
+	private JPanel panelMember;
+	private JPanel panelReservation;
+	private JLabel lblStartDay;
+	private JLabel lblEndDay;
+	private JButton btnEndDay;
+	private JButton btnStartDay;
+	private JTextField tfUserSearchText;
+	private JButton btnUserSearchCar;
+	private JComboBox cbUserSearchCarType;
+	private JTable tableUserSearchCarList;
 
 	/**
 	 * Create the dialog.
@@ -87,8 +116,19 @@ public class rentMain extends JDialog {
 		});
 		menuBar.add(btnNewButton);
 		
-		JButton btnNewButton_1 = new JButton("\uB85C\uADF8\uC544\uC6C3");
-		menuBar.add(btnNewButton_1);
+		btnAdminLogin = new JButton("\uAD00\uB9AC\uC790 \uB85C\uADF8\uC778");
+		if(session == false) {
+			btnAdminLogin.setText("관리자 로그인");
+		} else {
+			btnAdminLogin.setText("로그아웃");
+		}		
+		btnAdminLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				adminLogin();
+			}
+		});
+		menuBar.add(btnAdminLogin);
+		
 		
 		JButton btnNewButton_2 = new JButton("\uC885\uB8CC");
 		btnNewButton_2.addActionListener(new ActionListener() {
@@ -98,18 +138,275 @@ public class rentMain extends JDialog {
 		});
 		menuBar.add(btnNewButton_2);
 		
-		JLabel lblNewLabel = new JLabel("\uB80C\uD2B8\uCE74 \uAD00\uB9AC \uC2DC\uC2A4\uD15C");
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		menuBar.add(lblNewLabel);
+		JLabel lblModeLabel = new JLabel("\uB80C\uD2B8\uCE74 \uC608\uC57D \uC2DC\uC2A4\uD15C");
+		lblModeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		menuBar.add(lblModeLabel);
+		
+		lblUserLoginName = new JLabel("");
+		menuBar.add(lblUserLoginName);
 		getContentPane().setLayout(null);
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(0, 0, 834, 486);
-		getContentPane().add(tabbedPane);
+		getContentPane().add(tabbedPane);		
 		
-		JPanel panelMember = new JPanel();
+		panelLogin = new JPanel();
+		tabbedPane.addTab("로그인", null, panelLogin, null);
+		panelLogin.setLayout(null);		
+		
+		JLabel lblNewLabel_3 = new JLabel("\uC544 \uC774 \uB514");
+		lblNewLabel_3.setBounds(24, 30, 57, 15);
+		panelLogin.add(lblNewLabel_3);
+		
+		JLabel lblNewLabel_3_1 = new JLabel("\uBE44\uBC00\uBC88\uD638");
+		lblNewLabel_3_1.setBounds(24, 76, 57, 15);
+		panelLogin.add(lblNewLabel_3_1);
+		
+		tfUserId = new JTextField();
+		tfUserId.setBounds(88, 27, 116, 21);
+		panelLogin.add(tfUserId);
+		tfUserId.setColumns(10);
+		
+		tfUserPw = new JPasswordField();
+		tfUserPw.setBounds(88, 73, 116, 21);
+		panelLogin.add(tfUserPw);
+		
+		JButton btnNewButton_5 = new JButton("\uB85C\uADF8\uC778");
+		btnNewButton_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UserLogin();
+			}
+		});
+		btnNewButton_5.setFont(new Font("굴림", Font.PLAIN, 11));
+		btnNewButton_5.setBounds(24, 134, 77, 23);
+		panelLogin.add(btnNewButton_5);
+		
+		JButton btnNewButton_6 = new JButton("\uD68C\uC6D0\uAC00\uC785");
+		btnNewButton_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentMember rentMember = new rentMember();
+				rentMember.setModal(true);
+				rentMember.setVisible(true);
+			}
+		});
+		btnNewButton_6.setFont(new Font("굴림", Font.PLAIN, 10));
+		btnNewButton_6.setBounds(127, 134, 77, 23);
+		panelLogin.add(btnNewButton_6);
+		
+		JLabel lblNewLabel_4 = new JLabel("");
+		ImageIcon icon = new ImageIcon(rentMain.class.getResource("/carimg/main.jpg"));
+		Image image = icon.getImage();
+		image = image.getScaledInstance(829, 457, Image.SCALE_SMOOTH);
+ 		lblNewLabel_4.setIcon(new ImageIcon(image));
+		lblNewLabel_4.setBounds(0, 0, 829, 457);
+		panelLogin.add(lblNewLabel_4);
+		
+		JPanel panelSearchCar = new JPanel();
+		panelSearchCar.setLayout(null);
+		tabbedPane.addTab("차량검색", null, panelSearchCar, null);
+		
+		btnUserSearchCar = new JButton("\uAC80 \uC0C9");
+		btnUserSearchCar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int keytype = cbUserSearchCarType.getSelectedIndex();
+				String keyword = tfUserSearchText.getText();
+				UserSearchCarList(keytype, keyword);
+			}
+		});
+		btnUserSearchCar.setBounds(442, 68, 97, 23);
+		panelSearchCar.add(btnUserSearchCar);
+		btnUserSearchCar.setEnabled(false);
+		
+		JScrollPane scrollPaneC_1 = new JScrollPane();
+		scrollPaneC_1.setBounds(0, 115, 829, 342);
+		panelSearchCar.add(scrollPaneC_1);
+		
+		tableUserSearchCarList = new JTable();
+		scrollPaneC_1.setViewportView(tableUserSearchCarList);
+		
+		JLabel lblNewLabel_2_1_1 = new JLabel("\uCC28\uB7C9\uAC80\uC0C9");
+		lblNewLabel_2_1_1.setFont(new Font("굴림", Font.BOLD, 20));
+		lblNewLabel_2_1_1.setBounds(12, 5, 97, 55);
+		panelSearchCar.add(lblNewLabel_2_1_1);
+		
+		JLabel lblNewLabel = new JLabel("\uB300\uC5EC\uC77C : ");
+		lblNewLabel.setBounds(121, 25, 50, 15);
+		panelSearchCar.add(lblNewLabel);
+		
+		btnStartDay = new JButton("\uC120\uD0DD");
+		btnStartDay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentCal cal = new rentCal();				
+				cal.setModal(true);
+				cal.setVisible(true);
+				
+				String date = cal.getDate();
+				if(date != null) {
+					LocalDate localDate1 = LocalDate.parse(date);
+					LocalDate now = LocalDate.now();			
+									
+					if(localDate1.isBefore(now)) {
+						JOptionPane.showMessageDialog(null, "지난 날짜는 선택할수 없습니다");
+						lblStartDay.setText("");
+						lblEndDay.setText("");
+						btnEndDay.setEnabled(false);
+						btnUserSearchCar.setEnabled(false);
+					} else {
+						lblStartDay.setText(cal.getDate());
+						btnEndDay.setEnabled(true);
+					}
+				} else {
+					lblStartDay.setText("");
+					lblEndDay.setText("");
+					btnEndDay.setEnabled(false);
+					btnUserSearchCar.setEnabled(false);
+				}				
+			}
+		});
+		btnStartDay.setBounds(308, 23, 60, 23);
+		panelSearchCar.add(btnStartDay);
+		
+		lblStartDay = new JLabel("");
+		lblStartDay.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		lblStartDay.setOpaque(true);
+		lblStartDay.setBackground(new Color(255, 255, 255));
+		lblStartDay.setBounds(183, 23, 116, 20);
+		panelSearchCar.add(lblStartDay);
+		
+		lblEndDay = new JLabel("");
+		lblEndDay.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		lblEndDay.setBackground(new Color(255, 255, 255));
+		lblEndDay.setOpaque(true);
+		lblEndDay.setBounds(442, 23, 116, 20);
+		panelSearchCar.add(lblEndDay);
+		
+		btnEndDay = new JButton("\uC120\uD0DD");
+		btnEndDay.setEnabled(false);
+		btnEndDay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentCal cal = new rentCal();				
+				cal.setModal(true);
+				cal.setVisible(true);
+				
+				String date = cal.getDate();
+				if(date != null) {
+					if(!lblStartDay.getText().equals("")) {
+						LocalDate localDate1 = LocalDate.parse(lblStartDay.getText());
+						LocalDate localDate2 = LocalDate.parse(cal.getDate());
+						
+						if(localDate2.isBefore(localDate1) || localDate2.equals(localDate1)) {
+							JOptionPane.showMessageDialog(null, "반납은 대여일 이후에만 가능합니다");
+							lblEndDay.setText("");
+							btnUserSearchCar.setEnabled(false);
+						} else {
+							lblEndDay.setText(date);
+							btnUserSearchCar.setEnabled(true);
+						}						
+				} else {				
+						lblEndDay.setText("");
+					}
+				}				
+			}
+		});
+		btnEndDay.setBounds(570, 23, 60, 23);
+		panelSearchCar.add(btnEndDay);
+		
+		JLabel lblNewLabel_5 = new JLabel("\uB300\uC5EC\uC77C : ");
+		lblNewLabel_5.setBounds(380, 25, 50, 15);
+		panelSearchCar.add(lblNewLabel_5);
+		
+		JLabel lblNewLabel_1_1_1 = new JLabel("\uD0A4\uC6CC\uB4DC :");
+		lblNewLabel_1_1_1.setBounds(121, 68, 71, 22);
+		panelSearchCar.add(lblNewLabel_1_1_1);
+		
+		cbUserSearchCarType = new JComboBox();
+		cbUserSearchCarType.setModel(new DefaultComboBoxModel(new String[] {"\uC804 \uCCB4", "\uBE0C\uB79C\uB4DC", "\uCC28 \uC885", "\uBA85 \uCE6D"}));
+		cbUserSearchCarType.setBounds(183, 68, 71, 23);
+		panelSearchCar.add(cbUserSearchCarType);
+		
+		tfUserSearchText = new JTextField();
+		tfUserSearchText.setColumns(10);
+		tfUserSearchText.setBounds(285, 69, 129, 22);
+		panelSearchCar.add(tfUserSearchText);
+		
+		panelCar = new JPanel();
+		panelCar.setLayout(null);
+		tabbedPane.addTab("차량정보", null, panelCar, null);
+		tabbedPane.setEnabledAt(2,false);
+		
+		JLabel lblNewLabel_1_1 = new JLabel("\uC870\uD68C \uB300\uC0C1 :");
+		lblNewLabel_1_1.setBounds(188, 20, 71, 22);
+		panelCar.add(lblNewLabel_1_1);
+		
+		JComboBox cbSearchCarType = new JComboBox();
+		cbSearchCarType.setModel(new DefaultComboBoxModel(new String[] {"\uC804 \uCCB4", "\uBC88 \uD638", "\uBE0C\uB79C\uB4DC", "\uCC28 \uC885", "\uBA85 \uCE6D"}));
+		cbSearchCarType.setBounds(260, 20, 71, 23);
+		panelCar.add(cbSearchCarType);
+		
+		tfSearchCar = new JTextField();
+		tfSearchCar.setColumns(10);
+		tfSearchCar.setBounds(358, 20, 129, 22);
+		panelCar.add(tfSearchCar);
+		
+		JButton btnSearchCar = new JButton("\uAC80 \uC0C9");
+		btnSearchCar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int keytype = cbSearchCarType.getSelectedIndex();
+				String keyword = tfSearchCar.getText();
+				CarList(keytype, keyword);
+			}
+		});
+		btnSearchCar.setBounds(510, 20, 97, 23);
+		panelCar.add(btnSearchCar);
+		
+		JScrollPane scrollPaneC = new JScrollPane();
+		scrollPaneC.setBounds(0, 70, 829, 377);
+		panelCar.add(scrollPaneC);
+		
+		tableCar = new JTable();
+		scrollPaneC.setViewportView(tableCar);
+		tableCar.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseEntered(MouseEvent e) {
+		    	int keytype = cbSearchCarType.getSelectedIndex();
+				String keyword = tfSearchCar.getText();
+				CarList(keytype, keyword);
+		    }
+		});
+		
+		JLabel lblNewLabel_2_1 = new JLabel("\uCC28\uB7C9\uBAA9\uB85D");
+		lblNewLabel_2_1.setFont(new Font("굴림", Font.BOLD, 20));
+		lblNewLabel_2_1.setBounds(12, 5, 97, 55);
+		panelCar.add(lblNewLabel_2_1);
+		
+		popupMenu = new JPopupMenu();
+		addPopup(tableCar, popupMenu);
+		
+		JMenuItem btnCarDetail = new JMenuItem("상세정보");
+		btnCarDetail.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentCarDetail carDetail = new rentCarDetail(SearchCindex);
+				carDetail.setModal(true);
+				carDetail.setVisible(true);
+			}
+		});
+		popupMenu.add(btnCarDetail);
+		
+		JButton btnNewButton_3 = new JButton("\uCC28\uB7C9\uB4F1\uB85D");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rentCarDetail rentCarDetail = new  rentCarDetail(0);
+				rentCarDetail.setModal(true);
+				rentCarDetail.setVisible(true);
+			}
+		});
+		btnNewButton_3.setBounds(619, 20, 95, 23);
+		panelCar.add(btnNewButton_3);
+		
+		panelMember = new JPanel();
 		tabbedPane.addTab("회원검색", null, panelMember, null);
 		panelMember.setLayout(null);
+		tabbedPane.setEnabledAt(3,false);
 		
 		JLabel lblNewLabel_1 = new JLabel("\uC870\uD68C \uB300\uC0C1 :");
 		lblNewLabel_1.setBounds(188, 20, 71, 22);
@@ -167,58 +464,10 @@ public class rentMain extends JDialog {
 		btnNewButton_4.setBounds(619, 20, 95, 23);
 		panelMember.add(btnNewButton_4);
 		
-		JPanel panelCar = new JPanel();
-		panelCar.setLayout(null);
-		tabbedPane.addTab("차량정보", null, panelCar, null);
-		
-		JLabel lblNewLabel_1_1 = new JLabel("\uC870\uD68C \uB300\uC0C1 :");
-		lblNewLabel_1_1.setBounds(188, 20, 71, 22);
-		panelCar.add(lblNewLabel_1_1);
-		
-		JComboBox cbSearchCarType = new JComboBox();
-		cbSearchCarType.setModel(new DefaultComboBoxModel(new String[] {"\uC804 \uCCB4", "\uBC88 \uD638", "\uBE0C\uB79C\uB4DC", "\uCC28 \uC885", "\uBA85 \uCE6D"}));
-		cbSearchCarType.setBounds(260, 20, 71, 23);
-		panelCar.add(cbSearchCarType);
-		
-		tfSearchCar = new JTextField();
-		tfSearchCar.setColumns(10);
-		tfSearchCar.setBounds(358, 20, 129, 22);
-		panelCar.add(tfSearchCar);
-		
-		JButton btnSearchCar = new JButton("\uAC80 \uC0C9");
-		btnSearchCar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int keytype = cbSearchCarType.getSelectedIndex();
-				String keyword = tfSearchCar.getText();
-				CarList(keytype, keyword);
-			}
-		});
-		btnSearchCar.setBounds(510, 20, 97, 23);
-		panelCar.add(btnSearchCar);
-		
-		JScrollPane scrollPaneC = new JScrollPane();
-		scrollPaneC.setBounds(0, 70, 829, 377);
-		panelCar.add(scrollPaneC);
-		
-		tableCar = new JTable();
-		scrollPaneC.setViewportView(tableCar);
-		tableCar.addMouseListener(new MouseAdapter() {
-		    @Override
-		    public void mouseEntered(MouseEvent e) {
-		    	int keytype = cbSearchCarType.getSelectedIndex();
-				String keyword = tfSearchCar.getText();
-				CarList(keytype, keyword);
-		    }
-		});
-		
-		JLabel lblNewLabel_2_1 = new JLabel("\uCC28\uB7C9\uBAA9\uB85D");
-		lblNewLabel_2_1.setFont(new Font("굴림", Font.BOLD, 20));
-		lblNewLabel_2_1.setBounds(12, 5, 97, 55);
-		panelCar.add(lblNewLabel_2_1);
-		
-		JPanel panelReservation = new JPanel();
+		panelReservation = new JPanel();
 		panelReservation.setLayout(null);
 		tabbedPane.addTab("예약정보", null, panelReservation, null);
+		tabbedPane.setEnabledAt(4,false);
 		
 		JLabel lblNewLabel_1_2 = new JLabel("\uC870\uD68C \uB300\uC0C1 :");
 		lblNewLabel_1_2.setBounds(188, 20, 71, 22);
@@ -258,19 +507,6 @@ public class rentMain extends JDialog {
 		panelReservation.add(lblNewLabel_2_2);
 		
 		popupMenu = new JPopupMenu();
-		addPopup(tableCar, popupMenu);
-		
-		JMenuItem btnCarDetail = new JMenuItem("상세정보");
-		btnCarDetail.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				rentCarDetail carDetail = new rentCarDetail(SearchCindex);
-				carDetail.setModal(true);
-				carDetail.setVisible(true);
-			}
-		});
-		popupMenu.add(btnCarDetail);
-		
-		popupMenu = new JPopupMenu();
 		addPopup(tableMember, popupMenu);
 		
 		JMenuItem btnMemberDelete;
@@ -295,19 +531,163 @@ public class rentMain extends JDialog {
 			}
 		});
 		popupMenu.add(btnReservationDetail);
-		
-		JButton btnNewButton_3 = new JButton("\uCC28\uB7C9\uB4F1\uB85D");
-		btnNewButton_3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				rentCarDetail rentCarDetail = new  rentCarDetail(0);
-				rentCarDetail.setModal(true);
-				rentCarDetail.setVisible(true);
-			}
-		});
-		btnNewButton_3.setBounds(619, 20, 95, 23);
-		panelCar.add(btnNewButton_3);
 	}
 	
+	// 고객이 렌트카 검색
+	protected void UserSearchCarList(int keytype, String keyword) {
+		
+		String sql = "";
+		try {
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+	        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+	        
+//				if(keytype == 0) {					
+					sql = "select c.cindex, c.cbrend, c.cclass, c.cname, c.ccolor, c.coil, c.ctype, c.price from cartbl c left join ";
+					sql = sql + "(select * from rreservation  where rtdate <= ? and returndate >= ? or rtdate <= ? and returndate >= ?) A ";
+					sql = sql + "on c.cindex = A.cindex where A.cindex is null";					
+					
+//				}else if(keytype == 1) {
+//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cindex) Like UPPER(?)";
+//				}else if(keytype == 2) {
+//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cbrend) Like UPPER(?)";
+//				}else if(keytype == 3) {
+//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cclass) Like UPPER(?)";
+//				}else if(keytype == 4) {
+//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cname) Like UPPER(?)";
+//				}
+				PreparedStatement pstmt = con.prepareStatement(sql);
+//				if(keytype == 0) {
+					pstmt.setString(1, lblStartDay.getText().toString());
+					pstmt.setString(2, lblStartDay.getText().toString());
+					pstmt.setString(3, lblEndDay.getText().toString());
+					pstmt.setString(4, lblEndDay.getText().toString());
+//				}
+				ResultSet rs = pstmt.executeQuery();
+				
+				String[] columns = {"번호","브랜드","차종","명칭","색상","연료","기어","대여료"};
+				DefaultTableModel dtm = (DefaultTableModel)tableUserSearchCarList.getModel();
+				dtm.setColumnIdentifiers(columns);		
+				dtm.setRowCount(0);
+				
+				while(rs.next()) {
+					Vector<String> vector = new Vector<String>();
+					for(int i=1; i<=8; i++) {
+						vector.add(rs.getString(i));
+					}
+					dtm.addRow(vector);
+				}				
+		} catch (ClassNotFoundException | SQLException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	// 관리자 로그인
+	protected void adminLogin() {
+		
+		String rid = "";
+		String rpw = "";
+		String rname = "";
+		if(session == false) {
+			String UserId = tfUserId.getText();
+			char[] pw = tfUserPw.getPassword();
+			String UserPw = new String(pw);
+			if(UserId.equals("") || UserPw.equals("")) {
+				JOptionPane.showMessageDialog(null, "아이디/비밀번호를 입력하세요");
+			} else {
+			
+				String sql = "";
+				try {
+					Class.forName("oracle.jdbc.driver.OracleDriver");
+			        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+						
+					sql = "select rid,rpw,rname from rmember where rid = ? and rpw = ?";
+									
+					PreparedStatement pstmt = con.prepareStatement(sql);
+					pstmt.setString(1, UserId);
+					pstmt.setString(2, UserPw);
+					ResultSet rs = pstmt.executeQuery();
+
+					boolean findAdmin = rs.next();
+					if(findAdmin) {
+						rid = rs.getString("rid");
+						rpw = rs.getString("rpw");
+						rname = rs.getString("rname");
+						if(rid.equals("admin") && rpw.equals("12345")) {				
+							lblUserLoginName.setText("    (" + rname + " 관리자 모드로 로그인 하였습니다) ");
+							session = true;
+							LoginOk(session,rid);
+							btnAdminLogin.setText("로그아웃");
+						} else {
+							JOptionPane.showMessageDialog(null, "관리자 계정이 아닙니다");
+						}
+					} else {
+						JOptionPane.showMessageDialog(null, "가입 정보가 없습니다");
+					}
+					
+				} catch (ClassNotFoundException | SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		} else if(session == true){
+			session = false;
+			LoginOk(session,rid);
+			btnAdminLogin.setText("관리자 로그인");
+			lblUserLoginName.setText("");
+		}
+	}
+
+	// 회원 로그인
+	protected void UserLogin() {
+		
+		String UserId = tfUserId.getText();
+		char[] pw = tfUserPw.getPassword();
+		String UserPw = new String(pw);
+		if(UserId.equals("") || UserPw.equals("")) {
+			JOptionPane.showMessageDialog(null, "아이디/비밀번호를 입력하세요");
+		} else {
+		
+			String sql = "";
+			try {
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+		        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+					
+				sql = "select rname from rmember where rid = ? and rpw = ?";
+								
+				PreparedStatement pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, UserId);
+				pstmt.setString(2, UserPw);
+				ResultSet rs = pstmt.executeQuery();
+				boolean rname = rs.next();
+					if(rname == false) {
+						JOptionPane.showMessageDialog(null, "가입정보가 없습니다");
+					} else {				
+						UserName = rs.getString("rname");
+						lblUserLoginName.setText("    (" + UserName + " 고객님 환영합니다) ");
+						session = true;
+						LoginOk(session);
+						tabbedPane.setSelectedIndex(1);
+					}
+				
+			} catch (ClassNotFoundException | SQLException e1) {
+				e1.printStackTrace();
+			}			
+		} 
+	}
+	
+	
+	private void LoginOk(boolean session) {
+		
+		if(session == true) {
+			btnAdminLogin.setText("로그아웃");
+			tabbedPane.setEnabledAt(0, false);
+			tfUserId.setText("");
+			tfUserPw.setText("");
+		} else {
+			btnAdminLogin.setText("관리자 로그인");
+			tabbedPane.setEnabledAt(0, true);
+		}
+	}
+
 	protected void MemberDelete(String searchRid) {
 		
 		int result = JOptionPane.showConfirmDialog(null, "해당 회원을 추방할까요?", "회원정보", JOptionPane.YES_NO_OPTION);
@@ -498,5 +878,26 @@ public class rentMain extends JDialog {
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});
+	}
+	
+	public void LoginOk(boolean session, String rid){
+		
+		if(session == true && rid.equals("admin")) {
+			btnAdminLogin.setText("로그아웃");
+			tabbedPane.setEnabledAt(0, false);
+			tabbedPane.setEnabledAt(2, true);
+			tabbedPane.setSelectedIndex(2);
+			tabbedPane.setEnabledAt(3, true);
+			tabbedPane.setEnabledAt(4, true);
+			tfUserId.setText("");
+			tfUserPw.setText("");
+		} else {
+			btnAdminLogin.setText("관리자 로그인");
+			tabbedPane.setEnabledAt(0, true);
+			tabbedPane.setSelectedIndex(0);
+			tabbedPane.setEnabledAt(2, false);
+			tabbedPane.setEnabledAt(3, false);
+			tabbedPane.setEnabledAt(4, false);
+		}
 	}
 }
