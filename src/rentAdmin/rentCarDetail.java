@@ -163,7 +163,7 @@ public class rentCarDetail extends JDialog {
 		tfCarOil.setBounds(505, 230, 116, 21);
 		getContentPane().add(tfCarOil);
 		
-		btnCarUpdate = new JButton("\uC815\uBCF4\uC218\uC815");
+		btnCarUpdate = new JButton("\uC815\uBCF4\uC218\uC815");		
 		btnCarUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				CarUpdate();
@@ -187,6 +187,8 @@ public class rentCarDetail extends JDialog {
 				if(btnResetORAdd.getText().equals("초기화")) {
 					reset();
 					btnResetORAdd.setText("신규등록");
+					btnCarUpdate.setEnabled(false);
+					btnCarDelete.setEnabled(false);
 				} else {
 					CarAdd();
 				}
@@ -298,32 +300,35 @@ public class rentCarDetail extends JDialog {
 	// 차량정보 수정하기
 	protected void CarUpdate() {
 		
-		String cindex = tfCarNum.getText();
-		String sql = "";
-		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-	        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
-				
-			sql = "UPDATE cartbl SET cbrend=?, cname=?, cclass=?, ccolor=?, coil=?, ctype=?, price=?, cnote=? WHERE cindex = " + cindex;
-			PreparedStatement pstmt = con.prepareStatement(sql);
-			pstmt.setString(1, tfCarBrend.getText());
-			pstmt.setString(2, tfCarName.getText());
-			pstmt.setString(3, tfCarClass.getText());
-			pstmt.setString(4, tfCarColor.getText());
-			pstmt.setString(5, tfCarOil.getText());
-			pstmt.setString(6, tfCarType.getText());
-			pstmt.setInt(7, Integer.parseInt(tfRentPrice.getText()));
-			pstmt.setString(8, tfOther.getText());			
-			int updateok = pstmt.executeUpdate();
-			if(updateok == 1) {
-				JOptionPane.showMessageDialog(null, "차량정보가 수정성공");
-				dispose();
-			} else {
+		int result = JOptionPane.showConfirmDialog(null, "차량정보 수정할까요?", "차량정보", JOptionPane.YES_NO_OPTION);
+		if (result == JOptionPane.YES_OPTION) {
+			String cindex = tfCarNum.getText();
+			String sql = "";
+			try {
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+		        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+					
+				sql = "UPDATE cartbl SET cbrend=?, cname=?, cclass=?, ccolor=?, coil=?, ctype=?, price=?, cnote=? WHERE cindex = " + cindex;
+				PreparedStatement pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, tfCarBrend.getText());
+				pstmt.setString(2, tfCarName.getText());
+				pstmt.setString(3, tfCarClass.getText());
+				pstmt.setString(4, tfCarColor.getText());
+				pstmt.setString(5, tfCarOil.getText());
+				pstmt.setString(6, tfCarType.getText());
+				pstmt.setInt(7, Integer.parseInt(tfRentPrice.getText()));
+				pstmt.setString(8, tfOther.getText());			
+				int updateok = pstmt.executeUpdate();
+				if(updateok == 1) {
+					JOptionPane.showMessageDialog(null, "차량정보가 수정성공");
+					dispose();
+				} else {
+					JOptionPane.showMessageDialog(null, "차량정보 수정실패");
+				}
+			} catch (ClassNotFoundException | SQLException e1) {
+				e1.printStackTrace();
 				JOptionPane.showMessageDialog(null, "차량정보 수정실패");
 			}
-		} catch (ClassNotFoundException | SQLException e1) {
-			e1.printStackTrace();
-			JOptionPane.showMessageDialog(null, "차량정보 수정실패");
 		}
 	}
 
