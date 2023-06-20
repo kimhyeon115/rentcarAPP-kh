@@ -68,6 +68,9 @@ public class rentMain extends JDialog {
 		});
 	}
 	
+	protected static boolean adminsession = false;
+	private boolean session = false;
+	private String sessionId = "";
 	private JTextField tfSearchMember;
 	private JTable tableMember;
 	private JTextField tfSearchCar;
@@ -78,7 +81,6 @@ public class rentMain extends JDialog {
 	protected static String SearchCindex;
 	private JTextField tfUserId;
 	private JPasswordField tfUserPw;
-	private boolean session = false;
 	private JPanel panelLogin;
 	private String UserName;
 	private JLabel lblUserLoginName;
@@ -224,6 +226,32 @@ public class rentMain extends JDialog {
 		tableUserSearchCarList = new JTable();
 		scrollPaneC_1.setViewportView(tableUserSearchCarList);
 		
+		popupMenu = new JPopupMenu();
+		addPopup(tableUserSearchCarList, popupMenu);
+		
+		JMenuItem mntmNewMenuItem_1 = new JMenuItem("\uC608\uC57D\uD558\uB7EC \uAC00\uAE30");
+		mntmNewMenuItem_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(session == false) {
+					String message = "<html><p>로그인후 예약 가능합니다<br>&nbsp;&nbsp;&nbsp;로그인 하시겠습니까?</p></html>";
+					int result = JOptionPane.showConfirmDialog(null, message, "예약여부", JOptionPane.YES_NO_OPTION);
+					if(result == JOptionPane.YES_OPTION) {
+						tabbedPane.setSelectedIndex(0);
+					}
+				}else if(session == true) {
+					if(lblStartDay.getText().equals("") || lblEndDay.getText().equals("")) {
+						JOptionPane.showMessageDialog(null, "날짜를 선택하세요");
+					} else {				
+						rentReservationDetail rentReservationDetail = new rentReservationDetail
+								(SearchCindex, sessionId, UserName, lblStartDay.getText(), lblEndDay.getText());
+						rentReservationDetail.setModal(true);
+						rentReservationDetail.setVisible(true);
+					}
+				} 
+			}
+		});
+		popupMenu.add(mntmNewMenuItem_1);
+		
 		JLabel lblNewLabel_2_1_1 = new JLabel("\uCC28\uB7C9\uAC80\uC0C9");
 		lblNewLabel_2_1_1.setFont(new Font("굴림", Font.BOLD, 20));
 		lblNewLabel_2_1_1.setBounds(12, 5, 97, 55);
@@ -254,6 +282,12 @@ public class rentMain extends JDialog {
 					} else {
 						lblStartDay.setText(cal.getDate());
 						btnEndDay.setEnabled(true);
+						if(!lblEndDay.getText().equals("")) {
+							LocalDate localDate2 = LocalDate.parse(lblEndDay.getText());
+							if(localDate2.isBefore(localDate1) || localDate2.equals(localDate1)) {
+								lblEndDay.setText("");
+							}
+						}						
 					}
 				} else {
 					lblStartDay.setText("");
@@ -301,6 +335,9 @@ public class rentMain extends JDialog {
 						} else {
 							lblEndDay.setText(date);
 							btnUserSearchCar.setEnabled(true);
+							int keytype = cbUserSearchCarType.getSelectedIndex();
+							String keyword = tfUserSearchText.getText();
+							UserSearchCarList(keytype, keyword);
 						}						
 				} else {				
 						lblEndDay.setText("");
@@ -525,9 +562,9 @@ public class rentMain extends JDialog {
 		btnReservationDetail = new JMenuItem("\uC138\uBD80\uC815\uBCF4");
 		btnReservationDetail.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				renReservationDetail renReservationDetail = new renReservationDetail(SearchCindex);
-				renReservationDetail.setModal(true);
-				renReservationDetail.setVisible(true);
+				rentReservationDetail rentReservationDetail = new rentReservationDetail(SearchCindex);
+				rentReservationDetail.setModal(true);
+				rentReservationDetail.setVisible(true);
 			}
 		});
 		popupMenu.add(btnReservationDetail);
@@ -541,27 +578,31 @@ public class rentMain extends JDialog {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 	        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
 	        
-//				if(keytype == 0) {					
+				if(keytype == 0) {
 					sql = "select c.cindex, c.cbrend, c.cclass, c.cname, c.ccolor, c.coil, c.ctype, c.price from cartbl c left join ";
 					sql = sql + "(select * from rreservation  where rtdate <= ? and returndate >= ? or rtdate <= ? and returndate >= ?) A ";
-					sql = sql + "on c.cindex = A.cindex where A.cindex is null";					
-					
-//				}else if(keytype == 1) {
-//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cindex) Like UPPER(?)";
-//				}else if(keytype == 2) {
-//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cbrend) Like UPPER(?)";
-//				}else if(keytype == 3) {
-//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cclass) Like UPPER(?)";
-//				}else if(keytype == 4) {
-//					sql = "SELECT cindex, cbrend, cclass, cname, ccolor, coil, ctype, price FROM cartbl where UPPER(cname) Like UPPER(?)";
-//				}
+					sql = sql + "on c.cindex = A.cindex where A.cindex is null";
+				}else if(keytype == 1) {
+					sql = "select * from (select c.cindex, c.cbrend, c.cclass, c.cname, c.ccolor, c.coil, c.ctype, c.price from cartbl c left join ";
+					sql = sql + "(select * from rreservation  where rtdate <= ? and returndate >= ? or rtdate <= ? and returndate >= ?) A ";
+					sql = sql + "on c.cindex = A.cindex where A.cindex is null) where UPPER(cbrend) Like UPPER(?)";
+				}else if(keytype == 2) {
+					sql = "select * from (select c.cindex, c.cbrend, c.cclass, c.cname, c.ccolor, c.coil, c.ctype, c.price from cartbl c left join ";
+					sql = sql + "(select * from rreservation  where rtdate <= ? and returndate >= ? or rtdate <= ? and returndate >= ?) A ";
+					sql = sql + "on c.cindex = A.cindex where A.cindex is null) where UPPER(cclass) Like UPPER(?)";
+				}else if(keytype == 3) {
+					sql = "select * from (select c.cindex, c.cbrend, c.cclass, c.cname, c.ccolor, c.coil, c.ctype, c.price from cartbl c left join ";
+					sql = sql + "(select * from rreservation  where rtdate <= ? and returndate >= ? or rtdate <= ? and returndate >= ?) A ";
+					sql = sql + "on c.cindex = A.cindex where A.cindex is null) where UPPER(cname) Like UPPER(?)";
+				}
 				PreparedStatement pstmt = con.prepareStatement(sql);
-//				if(keytype == 0) {
-					pstmt.setString(1, lblStartDay.getText().toString());
-					pstmt.setString(2, lblStartDay.getText().toString());
-					pstmt.setString(3, lblEndDay.getText().toString());
-					pstmt.setString(4, lblEndDay.getText().toString());
-//				}
+				pstmt.setString(1, lblStartDay.getText().toString());
+				pstmt.setString(2, lblStartDay.getText().toString());
+				pstmt.setString(3, lblEndDay.getText().toString());
+				pstmt.setString(4, lblEndDay.getText().toString());
+				if(keytype != 0) {
+					pstmt.setString(5, "%"+tfUserSearchText.getText()+"%");
+				}				
 				ResultSet rs = pstmt.executeQuery();
 				
 				String[] columns = {"번호","브랜드","차종","명칭","색상","연료","기어","대여료"};
@@ -617,6 +658,7 @@ public class rentMain extends JDialog {
 							session = true;
 							LoginOk(session,rid);
 							btnAdminLogin.setText("로그아웃");
+							adminsession = true;
 						} else {
 							JOptionPane.showMessageDialog(null, "관리자 계정이 아닙니다");
 						}
@@ -630,6 +672,8 @@ public class rentMain extends JDialog {
 			}
 		} else if(session == true){
 			session = false;
+			adminsession = false;
+			sessionId = "";
 			LoginOk(session,rid);
 			btnAdminLogin.setText("관리자 로그인");
 			lblUserLoginName.setText("");
@@ -664,6 +708,7 @@ public class rentMain extends JDialog {
 						UserName = rs.getString("rname");
 						lblUserLoginName.setText("    (" + UserName + " 고객님 환영합니다) ");
 						session = true;
+						sessionId = UserId;
 						LoginOk(session);
 						tabbedPane.setSelectedIndex(1);
 					}

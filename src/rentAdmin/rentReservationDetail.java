@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -21,7 +23,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class renReservationDetail extends JDialog {
+public class rentReservationDetail extends JDialog {
 	private JTextField tfCindex;
 	private JTextField tfCbrend;
 	private JTextField tfCname;
@@ -34,6 +36,8 @@ public class renReservationDetail extends JDialog {
 	private JTextField tfRid;
 	private JTextField tfRvdate;
 	private JTextField tfRRdate;
+	private JButton btnCarDelete;
+	private JLabel lblRtnumOrRname;
 
 	/**
 	 * Launch the application.
@@ -42,7 +46,7 @@ public class renReservationDetail extends JDialog {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					renReservationDetail dialog = new renReservationDetail();
+					rentReservationDetail dialog = new rentReservationDetail();
 					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 					dialog.setVisible(true);
 				} catch (Exception e) {
@@ -55,7 +59,7 @@ public class renReservationDetail extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public renReservationDetail() {
+	public rentReservationDetail() {
 		setBounds(100, 100, 659, 555);
 		getContentPane().setLayout(null);
 		
@@ -146,10 +150,14 @@ public class renReservationDetail extends JDialog {
 		tfCoil.setBounds(495, 230, 116, 21);
 		getContentPane().add(tfCoil);
 		
-		JButton btnCarDelete = new JButton("\uC608\uC57D\uAC70\uBD80");
+		btnCarDelete = new JButton("\uC608\uC57D\uAC70\uBD80");
 		btnCarDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ReservationDelete(tfRtnum.getText());
+				if(btnCarDelete.getText().equals("예약거부")) {
+					ReservationDelete(tfRtnum.getText());
+				} else if(btnCarDelete.getText().equals("예약하기")) {
+					ReservationAdd();
+				}
 			}
 		});
 		btnCarDelete.setBounds(226, 436, 85, 30);
@@ -164,9 +172,9 @@ public class renReservationDetail extends JDialog {
 		btnBack.setBounds(341, 436, 85, 30);
 		getContentPane().add(btnBack);
 		
-		JLabel lblNewLabel_1_1 = new JLabel("\uC608\uC57D\uBC88\uD638");
-		lblNewLabel_1_1.setBounds(30, 360, 57, 15);
-		getContentPane().add(lblNewLabel_1_1);
+		lblRtnumOrRname = new JLabel("\uC608\uC57D\uBC88\uD638");
+		lblRtnumOrRname.setBounds(30, 360, 57, 15);
+		getContentPane().add(lblRtnumOrRname);
 		
 		tfRtnum = new JTextField();
 		tfRtnum.setEditable(false);
@@ -174,7 +182,7 @@ public class renReservationDetail extends JDialog {
 		tfRtnum.setBounds(100, 355, 116, 21);
 		getContentPane().add(tfRtnum);
 		
-		JLabel lblNewLabel_1_1_1 = new JLabel("\uC774 \uB984");
+		JLabel lblNewLabel_1_1_1 = new JLabel("\uC544 \uC774 \uB514");
 		lblNewLabel_1_1_1.setBounds(30, 400, 57, 15);
 		getContentPane().add(lblNewLabel_1_1_1);
 		
@@ -206,6 +214,41 @@ public class renReservationDetail extends JDialog {
 
 	}
 
+	protected void ReservationAdd() {
+		
+		int result = JOptionPane.showConfirmDialog(null, "예약 할까요??", "예약정보", JOptionPane.YES_NO_OPTION);
+		if (result == JOptionPane.YES_OPTION) {	
+			String sql = "";
+			try {
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+		        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+					
+				sql = "INSERT INTO rreservation (rtnum, rid, cindex, rvdate, rtdate, returndate, rpdate, rtprice) ";
+				sql = sql + "VALUES (rreservation_seq.nextval, ?,?,?,?,?,?,?)";
+				PreparedStatement pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, tfRid.getText());
+				pstmt.setInt(2, Integer.parseInt(tfCindex.getText()));
+				pstmt.setString(3, tfRvdate.getText());
+				String[] parts = tfRRdate.getText().split("~");
+				String startDate = parts[0].trim();
+				String endDate = parts[1].trim();
+				pstmt.setString(4, startDate);
+				pstmt.setString(5, endDate);
+				pstmt.setString(6, tfRRdate.getText());
+				pstmt.setInt(7, Integer.parseInt(tfRtprice.getText()));
+				int reservationok = pstmt.executeUpdate();
+				if(reservationok == 1) {
+					JOptionPane.showMessageDialog(null, "예약이 정상 처리되었습니다");
+					dispose();
+				} else {
+					JOptionPane.showMessageDialog(null, "예약이 실패하였습니다");
+				}				
+			} catch (ClassNotFoundException | SQLException e1) {
+				e1.printStackTrace();
+			}		
+		}
+	}
+
 	protected void ReservationDelete(String rtnum) {
 		
 		int result = JOptionPane.showConfirmDialog(null, "해당 예약을 취소할까요?", "회원정보", JOptionPane.YES_NO_OPTION);
@@ -230,8 +273,8 @@ public class renReservationDetail extends JDialog {
 		}
 	}
 
-	public renReservationDetail(String rtnum) {
-		this();
+	public rentReservationDetail(String rtnum) {
+		this();		
 		ReservationDetail(rtnum);
 	}
 
@@ -269,5 +312,49 @@ public class renReservationDetail extends JDialog {
 			e1.printStackTrace();
 		}
 	}
+	
+	public rentReservationDetail(String cindex, String sessionId, String UserName, String sDay, String eDay) {
+		this();
+		btnCarDelete.setText("예약하기");
+		lblRtnumOrRname.setText("예 약 자");
+		tfRid.setText(sessionId);
+		tfRtnum.setText(UserName);
+		tfRvdate.setText(LocalDate.now().toString());
+		tfRRdate.setText(sDay + " ~ " + eDay);
+		ReservationCarDetail(cindex,sDay,eDay);
+
+	}
+
+	private void ReservationCarDetail(String cindex, String sDay, String eDay) {
+
+		String sql = "";
+		try {
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+	        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+				
+	        sql = "select * from cartbl where cindex = ?";			
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, cindex);
+			ResultSet rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				tfCindex.setText(rs.getString("cindex"));
+				tfCbrend.setText(rs.getString("cbrend"));
+				tfCname.setText(rs.getString("cname"));
+				tfCclass.setText(rs.getString("cclass"));				
+				tfCcolor.setText(rs.getString("ccolor"));
+				tfCoil.setText(rs.getString("coil"));
+				tfCtype.setText(rs.getString("ctype"));
+				int price = Integer.parseInt(rs.getString("price"));
+				LocalDate startDate = LocalDate.parse(sDay);
+		        LocalDate endDate = LocalDate.parse(eDay);
+				long daysDiff = ChronoUnit.DAYS.between(startDate, endDate);
+				int totalprice = (int)daysDiff * price;
+				tfRtprice.setText(totalprice+"");
+			}	
+		} catch (ClassNotFoundException | SQLException e1) {
+			e1.printStackTrace();
+		}
+	}	
 	
 }
