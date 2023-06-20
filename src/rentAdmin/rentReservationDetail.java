@@ -2,6 +2,7 @@ package rentAdmin;
 
 
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,8 +20,12 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.awt.event.ActionEvent;
 
 public class rentReservationDetail extends JDialog {
@@ -38,6 +43,7 @@ public class rentReservationDetail extends JDialog {
 	private JTextField tfRRdate;
 	private JButton btnCarDelete;
 	private JLabel lblRtnumOrRname;
+	private JLabel lblCarImg;
 
 	/**
 	 * Launch the application.
@@ -63,7 +69,7 @@ public class rentReservationDetail extends JDialog {
 		setBounds(100, 100, 659, 555);
 		getContentPane().setLayout(null);
 		
-		JLabel lblCarImg = new JLabel("\uCC28\uB7C9 \uC774\uBBF8\uC9C0");
+		lblCarImg = new JLabel("\uCC28\uB7C9 \uC774\uBBF8\uC9C0");
 		lblCarImg.setOpaque(true);
 		lblCarImg.setHorizontalAlignment(SwingConstants.CENTER);
 		lblCarImg.setBackground(Color.WHITE);
@@ -258,12 +264,13 @@ public class rentReservationDetail extends JDialog {
 				Class.forName("oracle.jdbc.driver.OracleDriver");
 		        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
 					
-				sql = "DELETE FROM returndate WHERE rtnum = ?";
+				sql = "DELETE FROM rreservation WHERE rtnum = ?";
 				PreparedStatement pstmt = con.prepareStatement(sql);
 				pstmt.setString(1, rtnum);
 				int deleteok = pstmt.executeUpdate();
 				if(deleteok == 1) {
 					JOptionPane.showMessageDialog(null, "해당 예약을 거절하였습니다");
+					dispose();
 				} else {
 					JOptionPane.showMessageDialog(null, "예약 거절 싶패");
 				}				
@@ -274,7 +281,8 @@ public class rentReservationDetail extends JDialog {
 	}
 
 	public rentReservationDetail(String rtnum) {
-		this();		
+		this();
+		setTitle("선택하신 예약정보");
 		ReservationDetail(rtnum);
 	}
 
@@ -286,7 +294,7 @@ public class rentReservationDetail extends JDialog {
 	        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
 				
 			sql = "select r.rid, c.cname, c.cbrend, c.cclass, c.cindex, r.rvdate, r.rtdate, r.returndate, ";
-			sql = sql + "r.rtprice, c.ccolor, c.ctype, c.coil from rreservation r ";
+			sql = sql + "r.rtprice, c.ccolor, c.ctype, c.coil, c.cimg from rreservation r ";
 			sql = sql + "inner join cartbl c on r.cindex = c.cindex where r.rtnum = ?";
 			
 			PreparedStatement pstmt = con.prepareStatement(sql);
@@ -306,6 +314,8 @@ public class rentReservationDetail extends JDialog {
 				tfCcolor.setText(rs.getString("ccolor"));
 				tfCtype.setText(rs.getString("ctype"));
 				tfCoil.setText(rs.getString("coil"));
+				String cimg = rs.getString("cimg");
+		 		lblCarImg.setText("<html><img src='" + cimg + "' width='350' height='300'></html>");
 			}
 			
 		} catch (ClassNotFoundException | SQLException e1) {
@@ -315,6 +325,7 @@ public class rentReservationDetail extends JDialog {
 	
 	public rentReservationDetail(String cindex, String sessionId, String UserName, String sDay, String eDay) {
 		this();
+		setTitle("선택하신 예약정보");
 		btnCarDelete.setText("예약하기");
 		lblRtnumOrRname.setText("예 약 자");
 		tfRid.setText(sessionId);
@@ -351,6 +362,8 @@ public class rentReservationDetail extends JDialog {
 				long daysDiff = ChronoUnit.DAYS.between(startDate, endDate);
 				int totalprice = (int)daysDiff * price;
 				tfRtprice.setText(totalprice+"");
+				String cimg = rs.getString("cimg");
+		 		lblCarImg.setText("<html><img src='" + cimg + "' width='350' height='300'></html>");
 			}	
 		} catch (ClassNotFoundException | SQLException e1) {
 			e1.printStackTrace();

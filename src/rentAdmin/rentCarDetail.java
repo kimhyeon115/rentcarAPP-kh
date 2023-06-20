@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import javax.swing.SwingConstants;
+import java.awt.Font;
 
 public class rentCarDetail extends JDialog {
 	private JTextField tfCarNum;
@@ -41,6 +42,8 @@ public class rentCarDetail extends JDialog {
 	private JButton btnCarUpdate;
 	private JButton btnCarDelete;
 	private JButton btnResetORAdd;
+	private String cimg;
+	private JTextField tfUrl;
 
 	/**
 	 * Launch the application.
@@ -91,7 +94,7 @@ public class rentCarDetail extends JDialog {
 		getContentPane().add(lblNewLabel_4);
 		
 		JLabel lblNewLabel_6 = new JLabel("\uBE44 \uACE0");
-		lblNewLabel_6.setBounds(35, 355, 57, 15);
+		lblNewLabel_6.setBounds(35, 380, 57, 15);
 		getContentPane().add(lblNewLabel_6);
 		
 		tfCarNum = new JTextField();
@@ -116,7 +119,7 @@ public class rentCarDetail extends JDialog {
 		tfCarType.setColumns(10);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(85, 350, 300, 60);
+		panel.setBounds(85, 380, 300, 60);
 		getContentPane().add(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 		
@@ -169,7 +172,7 @@ public class rentCarDetail extends JDialog {
 				CarUpdate();
 			}
 		});
-		btnCarUpdate.setBounds(435, 345, 85, 30);
+		btnCarUpdate.setBounds(435, 370, 85, 30);
 		getContentPane().add(btnCarUpdate);
 		
 		btnCarDelete = new JButton("\uACC4\uC57D\uD574\uC9C0");
@@ -178,7 +181,7 @@ public class rentCarDetail extends JDialog {
 				CarDelete();
 			}
 		});
-		btnCarDelete.setBounds(435, 385, 85, 30);
+		btnCarDelete.setBounds(435, 410, 85, 30);
 		getContentPane().add(btnCarDelete);
 		
 		btnResetORAdd = new JButton("\uCD08\uAE30\uD654");
@@ -194,7 +197,7 @@ public class rentCarDetail extends JDialog {
 				}
 			}
 		});
-		btnResetORAdd.setBounds(536, 345, 85, 30);
+		btnResetORAdd.setBounds(536, 370, 85, 30);
 		getContentPane().add(btnResetORAdd);
 		
 		JButton btnBack = new JButton("\uB4A4\uB85C\uAC00\uAE30");
@@ -203,8 +206,24 @@ public class rentCarDetail extends JDialog {
 				dispose();
 			}
 		});
-		btnBack.setBounds(536, 385, 85, 30);
+		btnBack.setBounds(536, 410, 85, 30);
 		getContentPane().add(btnBack);
+		
+		JButton btnNewButton = new JButton("URL\uC801\uC6A9");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cimg = tfUrl.getText();
+				lblCarImg.setText("<html><img src='" + cimg + "' width='350' height='300'></html>");
+			}
+		});
+		btnNewButton.setFont(new Font("굴림", Font.PLAIN, 10));
+		btnNewButton.setBounds(35, 340, 75, 23);
+		getContentPane().add(btnNewButton);
+		
+		tfUrl = new JTextField();
+		tfUrl.setBounds(122, 340, 263, 21);
+		getContentPane().add(tfUrl);
+		tfUrl.setColumns(10);
 	}
 	
 	// 홈 등록버튼
@@ -226,12 +245,15 @@ public class rentCarDetail extends JDialog {
 		tfCarOil.setText("");
 		tfCarType.setText("");
 		tfOther.setText("");
+		tfUrl.setText("");
 	}
 
 	// 차량정보 등록하기
 	protected void CarAdd() {
 
-		if(tfCarBrend.getText().equals("") || tfCarName.getText().equals("") || tfCarClass.getText().equals("")	|| tfRentPrice.getText().equals("") || tfCarColor.getText().equals("") || tfCarOil.getText().equals("") || tfCarType.getText().equals("")) {
+		if(tfCarBrend.getText().equals("") || tfCarName.getText().equals("") || tfCarClass.getText().equals("")	
+				|| tfRentPrice.getText().equals("") || tfCarColor.getText().equals("") || tfCarOil.getText().equals("") 
+				|| tfCarType.getText().equals("") || tfUrl.getText().equals("")) {
 			JOptionPane.showMessageDialog(null, "정보를 입력하세요");
 		} else {
 			String sql = "";
@@ -239,7 +261,7 @@ public class rentCarDetail extends JDialog {
 				Class.forName("oracle.jdbc.driver.OracleDriver");
 		        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
 					
-				sql = "INSERT INTO cartbl (cindex, cbrend, cclass, cname, ccolor, coil, ctype, price, cimg, cnote) VALUES (CARTBL_SEQ.nextval,?,?,?,?,?,?,?,?,?)";
+				sql = "INSERT INTO cartbl (cindex, cbrend, cclass, cname, ccolor, coil, ctype, price, cnote, cimg) VALUES (CARTBL_SEQ.nextval,?,?,?,?,?,?,?,?,?)";
 				PreparedStatement pstmt = con.prepareStatement(sql);
 				pstmt.setString(1, tfCarBrend.getText());
 				pstmt.setString(2, tfCarClass.getText());
@@ -248,8 +270,8 @@ public class rentCarDetail extends JDialog {
 				pstmt.setString(5, tfCarOil.getText());
 				pstmt.setString(6, tfCarType.getText());
 				pstmt.setInt(7, Integer.parseInt(tfRentPrice.getText()));
-				pstmt.setString(8, "");
-				pstmt.setString(9, tfOther.getText());			
+				pstmt.setString(8, tfOther.getText());
+				pstmt.setString(9, tfUrl.getText());
 				int insertok = pstmt.executeUpdate();
 				if(insertok == 1) {
 					JOptionPane.showMessageDialog(null, "차량정보 등록성공");
@@ -300,40 +322,48 @@ public class rentCarDetail extends JDialog {
 	// 차량정보 수정하기
 	protected void CarUpdate() {
 		
-		int result = JOptionPane.showConfirmDialog(null, "차량정보 수정할까요?", "차량정보", JOptionPane.YES_NO_OPTION);
-		if (result == JOptionPane.YES_OPTION) {
-			String cindex = tfCarNum.getText();
-			String sql = "";
-			try {
-				Class.forName("oracle.jdbc.driver.OracleDriver");
-		        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
-					
-				sql = "UPDATE cartbl SET cbrend=?, cname=?, cclass=?, ccolor=?, coil=?, ctype=?, price=?, cnote=? WHERE cindex = " + cindex;
-				PreparedStatement pstmt = con.prepareStatement(sql);
-				pstmt.setString(1, tfCarBrend.getText());
-				pstmt.setString(2, tfCarName.getText());
-				pstmt.setString(3, tfCarClass.getText());
-				pstmt.setString(4, tfCarColor.getText());
-				pstmt.setString(5, tfCarOil.getText());
-				pstmt.setString(6, tfCarType.getText());
-				pstmt.setInt(7, Integer.parseInt(tfRentPrice.getText()));
-				pstmt.setString(8, tfOther.getText());			
-				int updateok = pstmt.executeUpdate();
-				if(updateok == 1) {
-					JOptionPane.showMessageDialog(null, "차량정보가 수정성공");
-					dispose();
-				} else {
+		if(tfCarBrend.getText().equals("") || tfCarName.getText().equals("") || tfCarClass.getText().equals("")	
+				|| tfRentPrice.getText().equals("") || tfCarColor.getText().equals("") || tfCarOil.getText().equals("") 
+				|| tfCarType.getText().equals("") || tfUrl.getText().equals("")) {
+			JOptionPane.showMessageDialog(null, "정보를 입력하세요");
+		} else {
+			int result = JOptionPane.showConfirmDialog(null, "차량정보 수정할까요?", "차량정보", JOptionPane.YES_NO_OPTION);
+			if (result == JOptionPane.YES_OPTION) {
+				String cindex = tfCarNum.getText();
+				String sql = "";
+				try {
+					Class.forName("oracle.jdbc.driver.OracleDriver");
+			        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
+						
+					sql = "UPDATE cartbl SET cbrend=?, cname=?, cclass=?, ccolor=?, coil=?, ctype=?, price=?, cnote=? , cimg = ? WHERE cindex = " + cindex;
+					PreparedStatement pstmt = con.prepareStatement(sql);
+					pstmt.setString(1, tfCarBrend.getText());
+					pstmt.setString(2, tfCarName.getText());
+					pstmt.setString(3, tfCarClass.getText());
+					pstmt.setString(4, tfCarColor.getText());
+					pstmt.setString(5, tfCarOil.getText());
+					pstmt.setString(6, tfCarType.getText());
+					pstmt.setInt(7, Integer.parseInt(tfRentPrice.getText()));
+					pstmt.setString(8, tfOther.getText());
+					pstmt.setString(9, tfUrl.getText());
+					int updateok = pstmt.executeUpdate();
+					if(updateok == 1) {
+						JOptionPane.showMessageDialog(null, "차량정보가 수정성공");
+						dispose();
+					} else {
+						JOptionPane.showMessageDialog(null, "차량정보 수정실패");
+					}
+				} catch (ClassNotFoundException | SQLException e1) {
+					e1.printStackTrace();
 					JOptionPane.showMessageDialog(null, "차량정보 수정실패");
 				}
-			} catch (ClassNotFoundException | SQLException e1) {
-				e1.printStackTrace();
-				JOptionPane.showMessageDialog(null, "차량정보 수정실패");
 			}
 		}
 	}
 
 	public rentCarDetail(String SearchCindex) {
 		this();
+		setTitle("선택하신 차량정보");
 		CarDetail(SearchCindex);
 	}
 
@@ -341,6 +371,7 @@ public class rentCarDetail extends JDialog {
 	private void CarDetail(String SearchCindex) {
 		
 		String sql = "";
+		cimg = "";
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 	        Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","system","1234");
@@ -359,16 +390,10 @@ public class rentCarDetail extends JDialog {
 				tfCarOil.setText(rs.getString("coil"));
 				tfCarType.setText(rs.getString("ctype"));
 				tfRentPrice.setText(rs.getString("price"));
-				tfOther.setText(rs.getString("cnote"));
-				
-				String cimg = rs.getString("cimg");				
-				if(cimg.substring(0,1).equals("/")) {
-					String[] cimgs = cimg.split("/");
-					filePath = "/carimg/" + cimgs[cimgs.length - 1];
-				} else {
-					filePath = cimg;
-				}
-				lblCarImg.setText("<html><img src='" + filePath + "' width='350' height='300'></html>");
+				tfOther.setText(rs.getString("cnote"));				
+				cimg = rs.getString("cimg");
+				lblCarImg.setText("<html><img src='" + cimg + "' width='350' height='300'></html>");
+				tfUrl.setText(cimg);
 			}				
 		} catch (ClassNotFoundException | SQLException e1) {
 			e1.printStackTrace();

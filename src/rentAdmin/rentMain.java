@@ -675,6 +675,8 @@ public class rentMain extends JDialog {
 							LoginOk(session,rid);
 							btnAdminLogin.setText("로그아웃");
 							adminsession = true;
+							UserName = rname;
+							sessionId = rid;
 						} else {
 							JOptionPane.showMessageDialog(null, "관리자 계정이 아닙니다");
 						}
@@ -697,6 +699,8 @@ public class rentMain extends JDialog {
 			memberdtm.setRowCount(0);
 			reservationdtm.setRowCount(0);
 			usersearchdtm.setRowCount(0);
+			lblStartDay.setText("");
+			lblEndDay.setText("");
 		}
 	}
 
