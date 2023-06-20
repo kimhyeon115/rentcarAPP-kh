@@ -97,6 +97,10 @@ public class rentMain extends JDialog {
 	private JButton btnUserSearchCar;
 	private JComboBox cbUserSearchCarType;
 	private JTable tableUserSearchCarList;
+	private DefaultTableModel cardtm;
+	private DefaultTableModel memberdtm;
+	private DefaultTableModel reservationdtm;
+	private DefaultTableModel usersearchdtm;
 
 	/**
 	 * Create the dialog.
@@ -108,19 +112,9 @@ public class rentMain extends JDialog {
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		
-		JButton btnNewButton = new JButton("\uC815\uBCF4");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String message = "<html>&nbsp;&nbsp;&nbsp;&nbsp;인천직업능력교육원<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-				message = message + "&nbsp;&nbsp;&nbsp;&nbsp;제 작 : 김 현<br>candle_kh@naver.com</html>";
-				JOptionPane.showMessageDialog(null, message);
-			}
-		});
-		menuBar.add(btnNewButton);
-		
-		btnAdminLogin = new JButton("\uAD00\uB9AC\uC790 \uB85C\uADF8\uC778");
+		btnAdminLogin = new JButton("\uAD00\uB9AC\uC790 \uBAA8\uB4DC");
 		if(session == false) {
-			btnAdminLogin.setText("관리자 로그인");
+			btnAdminLogin.setText("관리자 모드");
 		} else {
 			btnAdminLogin.setText("로그아웃");
 		}		
@@ -138,6 +132,16 @@ public class rentMain extends JDialog {
 				dispose();
 			}
 		});
+		
+		JButton btnNewButton = new JButton("\uC815\uBCF4");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String message = "<html>&nbsp;&nbsp;&nbsp;&nbsp;인천직업능력교육원<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+				message = message + "&nbsp;&nbsp;&nbsp;&nbsp;제 작 : 김 현<br>candle_kh@naver.com</html>";
+				JOptionPane.showMessageDialog(null, message);
+			}
+		});
+		menuBar.add(btnNewButton);
 		menuBar.add(btnNewButton_2);
 		
 		JLabel lblModeLabel = new JLabel("\uB80C\uD2B8\uCE74 \uC608\uC57D \uC2DC\uC2A4\uD15C");
@@ -225,6 +229,9 @@ public class rentMain extends JDialog {
 		
 		tableUserSearchCarList = new JTable();
 		scrollPaneC_1.setViewportView(tableUserSearchCarList);
+		String[] usersearchcolumns = {"번호","브랜드","차종","명칭","색상","연료","기어","대여료"};
+		usersearchdtm = (DefaultTableModel)tableUserSearchCarList.getModel();
+		usersearchdtm.setColumnIdentifiers(usersearchcolumns);
 		
 		popupMenu = new JPopupMenu();
 		addPopup(tableUserSearchCarList, popupMenu);
@@ -402,6 +409,9 @@ public class rentMain extends JDialog {
 		
 		tableCar = new JTable();
 		scrollPaneC.setViewportView(tableCar);
+		String[] carcolumns = {"번호","브랜드","차종","명칭","색상","연료","기어","대여료"};
+		cardtm = (DefaultTableModel)tableCar.getModel();
+		cardtm.setColumnIdentifiers(carcolumns);
 		tableCar.addMouseListener(new MouseAdapter() {
 		    @Override
 		    public void mouseEntered(MouseEvent e) {
@@ -476,6 +486,9 @@ public class rentMain extends JDialog {
 				
 		tableMember = new JTable();		
 		scrollPaneM.setViewportView(tableMember);
+		String[] membercolumns = {"아이디","이름","연락처","이메일","가입일"};
+		memberdtm = (DefaultTableModel)tableMember.getModel();
+		memberdtm.setColumnIdentifiers(membercolumns);
 		tableMember.addMouseListener(new MouseAdapter() {
 		    @Override
 		    public void mouseEntered(MouseEvent e) {		    	
@@ -537,6 +550,9 @@ public class rentMain extends JDialog {
 		
 		tableReservation = new JTable();
 		scrollPaneR.setViewportView(tableReservation);
+		String[] reservationcolumns = {"예약번호","아이디","차량번호","예약일","대여일","반납일","대여료"};
+		reservationdtm = (DefaultTableModel)tableReservation.getModel();
+		reservationdtm.setColumnIdentifiers(reservationcolumns);
 		
 		JLabel lblNewLabel_2_2 = new JLabel("\uC608\uC57D\uBAA9\uB85D");
 		lblNewLabel_2_2.setFont(new Font("굴림", Font.BOLD, 20));
@@ -622,7 +638,7 @@ public class rentMain extends JDialog {
 		}
 	}
 
-	// 관리자 로그인
+	// 관리자 모드 로그인
 	protected void adminLogin() {
 		
 		String rid = "";
@@ -675,8 +691,12 @@ public class rentMain extends JDialog {
 			adminsession = false;
 			sessionId = "";
 			LoginOk(session,rid);
-			btnAdminLogin.setText("관리자 로그인");
+			btnAdminLogin.setText("관리자 모드");
 			lblUserLoginName.setText("");
+			cardtm.setRowCount(0);
+			memberdtm.setRowCount(0);
+			reservationdtm.setRowCount(0);
+			usersearchdtm.setRowCount(0);
 		}
 	}
 
@@ -728,8 +748,7 @@ public class rentMain extends JDialog {
 			tfUserId.setText("");
 			tfUserPw.setText("");
 		} else {
-			btnAdminLogin.setText("관리자 로그인");
-			tabbedPane.setEnabledAt(0, true);
+			btnAdminLogin.setText("관리자 모드");
 		}
 	}
 
@@ -937,7 +956,7 @@ public class rentMain extends JDialog {
 			tfUserId.setText("");
 			tfUserPw.setText("");
 		} else {
-			btnAdminLogin.setText("관리자 로그인");
+			btnAdminLogin.setText("관리자 모드");
 			tabbedPane.setEnabledAt(0, true);
 			tabbedPane.setSelectedIndex(0);
 			tabbedPane.setEnabledAt(2, false);
