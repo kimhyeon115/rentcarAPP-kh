@@ -45,26 +45,6 @@ public class rentReservationDetail extends JDialog {
 	private JLabel lblRtnumOrRname;
 	private JLabel lblCarImg;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					rentReservationDetail dialog = new rentReservationDetail();
-					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-					dialog.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the dialog.
-	 */
 	public rentReservationDetail() {
 		setBounds(100, 100, 659, 555);
 		getContentPane().setLayout(null);

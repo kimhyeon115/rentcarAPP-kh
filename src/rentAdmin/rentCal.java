@@ -30,41 +30,18 @@ public class rentCal extends JDialog {
 	private JButton btnNextMonth;
 	private JButton btnPrevMonth;
 	private JButton btnNextYear;
-	private JButton btnPrevYear;
-	
+	private JButton btnPrevYear;	
 	private int gYear;
 	private int gMonth;
-	private int gDay;
-	
-	
+	private int gDay;	
 	private String selectedDate;
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel_1;
-	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					rentCal dialog = new rentCal();
-					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-					dialog.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	public String getDate() {
 		return selectedDate;
 	}
 
-	/**
-	 * Create the dialog.
-	 */
 	public rentCal() {
 		setTitle("ดÞทย");
 		setBounds(100, 100, 450, 392);

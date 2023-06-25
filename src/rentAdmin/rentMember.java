@@ -33,26 +33,6 @@ public class rentMember extends JDialog {
 	private JPasswordField tfPw1;
 	private JPasswordField tfPw2;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					rentMember dialog = new rentMember();
-					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-					dialog.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the dialog.
-	 */
 	public rentMember() {
 		setTitle("\uC2E0\uADDC\uD68C\uC6D0 \uB4F1\uB85D");
 		setBounds(100, 100, 432, 459);

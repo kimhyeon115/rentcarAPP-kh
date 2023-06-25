@@ -45,26 +45,6 @@ public class rentCarDetail extends JDialog {
 	private String cimg;
 	private JTextField tfUrl;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					rentCarDetail dialog = new rentCarDetail();
-					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-					dialog.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the dialog.
-	 */
 	public rentCarDetail() {
 		setTitle("\uCC28\uB7C9\uC815\uBCF4");
 		setBounds(100, 100, 671, 495);
